@@ -81,6 +81,7 @@
 }
 
 .centerblock__h2 {
+	color: #ffffff;
 	font-style: normal;
 	font-weight: 400;
 	font-size: 64px;
@@ -114,6 +115,7 @@
 }
 
 .filter__title {
+	color: #ffffff;
 	font-style: normal;
 	font-weight: 400;
 	font-size: 16px;
@@ -122,6 +124,7 @@
 }
 
 .filter__button {
+	color: #ffffff;
 	/*composes: btn-text from '/src/UI/Button/button.module.css';*/
 	font-style: normal;
 	font-weight: 400;

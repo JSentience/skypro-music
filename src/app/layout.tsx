@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 
-const montserratSans = Montserrat({
-  variable: '--font-geist-sans',
+const montserrat = Montserrat({
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserratSans.variable} font-sans`}>{children}</body>
+      <body className={`${montserrat.className} font-sans`}>{children}</body>
     </html>
   );
 }
