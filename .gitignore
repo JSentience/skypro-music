@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/.idea/.gitignore
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/copilot.data.migration.ask2agent.xml
+/.idea/git_toolbox_prj.xml
+/.idea/modules.xml
+/.idea/prettier.xml
+/.idea/codeStyles/Project.xml
+/.idea/dictionaries/project.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.zed/settings.json
+/.idea/skypro-music.iml
+/.idea/vcs.xml
