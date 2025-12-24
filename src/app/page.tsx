@@ -2,8 +2,6 @@ import Bar from '@/components/Bar/Bar';
 import Centerblock from '@/components/Centerblock/Centerblock';
 import Nav from '@/components/Nav/Nav';
 import Sidebar from '@/components/Sidebar/Sidebar';
-import Link from 'next/dist/client/link';
-import Image from 'next/image';
 import styles from './page.module.css';
 
 export default function Home() {
