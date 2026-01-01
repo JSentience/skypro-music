@@ -5,12 +5,14 @@ type initialTrackStateType = {
   currentTrack: null | TrackType;
   isPlay: boolean;
   allTracks?: TrackType[];
+  isLike?: boolean;
 };
 
 const initialState: initialTrackStateType = {
   currentTrack: null,
   isPlay: false,
   allTracks: [],
+  isLike: false,
 };
 
 const trackSlice = createSlice({
@@ -26,8 +28,12 @@ const trackSlice = createSlice({
     setAllTracks(state, action: PayloadAction<TrackType[]>) {
       state.allTracks = action.payload;
     },
+    setIsLike(state, action: PayloadAction<boolean>) {
+      state.isLike = action.payload;
+    },
   },
 });
 
-export const { setCurrentTrack, setIsPlay, setAllTracks } = trackSlice.actions;
+export const { setCurrentTrack, setIsPlay, setAllTracks, setIsLike } =
+  trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;
