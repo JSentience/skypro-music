@@ -1,4 +1,4 @@
-export type trackType = {
+export type TrackType = {
   _id: number;
   name: string;
   author: string;

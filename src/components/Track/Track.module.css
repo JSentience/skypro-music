@@ -35,6 +35,7 @@
 }
 
 .track__titleImage {
+  position: relative;
   width: 51px;
   height: 51px;
   padding: 16px;
@@ -53,9 +54,31 @@
 
 .track__titleSvg {
   width: 18px;
-  height: 17px;
+  height: 18px;
   fill: transparent;
   stroke: #4e4e4e;
+}
+
+.track__titleSvg use {
+  fill: inherit;
+  stroke: inherit;
+}
+.track__titleSvg_dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  animation: scale 1.5s infinite;
+}
+@keyframes scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .track__titleLink {

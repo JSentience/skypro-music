@@ -103,7 +103,7 @@
   font-size: 20px;
   color: #fff;
   font-variant-numeric: lining-nums proportional-nums;
-  font-family: StratosSkyeng;
+  font-family: StratosSkyeng, sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 24px; /* 120% */
@@ -111,7 +111,7 @@
 .filter__item:hover {
   color: #b672ff;
   font-variant-numeric: lining-nums proportional-nums;
-  font-family: StratosSkyeng;
+  font-family: StratosSkyeng, sans-serif;
   font-size: 20px;
   font-style: normal;
   font-weight: 400;

@@ -1,3 +1,4 @@
+import ReduxProvider from '@/store/ReduxProvider';
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
@@ -18,8 +19,10 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${montserrat.className} font-sans`}>{children}</body>
-    </html>
+    <ReduxProvider>
+      <html lang="en">
+        <body className={`${montserrat.className} font-sans`}>{children}</body>
+      </html>
+    </ReduxProvider>
   );
 }

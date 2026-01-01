@@ -1,5 +1,6 @@
 .centerblock {
   width: auto;
+  height: auto;
   -webkit-box-flex: 3;
   -ms-flex-positive: 3;
   flex-grow: 3;

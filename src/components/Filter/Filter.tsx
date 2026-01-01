@@ -5,6 +5,21 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import styles from './Filter.module.css';
 
+const authorFilter: string[] = [
+  ...new Set(data.map((track) => track.author)),
+].filter(Boolean);
+const yearFilter: string[] = [
+  ...new Set(data.map((track) => track.release_date.slice(0, 4))),
+].filter(Boolean);
+const genreFilter: string[] = [
+  ...new Set(data.flatMap((track) => track.genre)),
+].filter(Boolean);
+const filters: { name: string; label: string; options: string[] }[] = [
+  { name: 'author', label: 'исполнителю', options: authorFilter },
+  { name: 'genre', label: 'жанру', options: genreFilter },
+  { name: 'year', label: 'году выпуска', options: yearFilter },
+];
+
 export default function Filter() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState({
@@ -12,20 +27,6 @@ export default function Filter() {
     year: '',
     genre: '',
   });
-  const authorFilter = [...new Set(data.map((track) => track.author))].filter(
-    Boolean,
-  );
-  const yearFilter = [
-    ...new Set(data.map((track) => track.release_date.slice(0, 4))),
-  ].filter(Boolean);
-  const genreFilter = [...new Set(data.flatMap((track) => track.genre))].filter(
-    Boolean,
-  );
-  const filters = [
-    { name: 'author', label: 'исполнителю', options: authorFilter },
-    { name: 'genre', label: 'жанру', options: genreFilter },
-    { name: 'year', label: 'году выпуска', options: yearFilter },
-  ];
 
   const handleFilterClick = (filterName: string) => {
     setActiveFilter(activeFilter === filterName ? null : filterName);
