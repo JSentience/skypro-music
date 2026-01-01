@@ -1,4 +1,6 @@
-export const data = [
+import { TrackType } from '@/sharedTypes/sharedTypes';
+
+export const data: TrackType[] = [
   {
     _id: 8,
     name: 'Chase',

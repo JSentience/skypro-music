@@ -51,3 +51,7 @@ next-env.d.ts
 /.zed/settings.json
 /.idea/skypro-music.iml
 /.idea/vcs.xml
+/.idea/copilot.data.migration.agent.xml
+/.idea/copilot.data.migration.ask.xml
+/.idea/copilot.data.migration.edit.xml
+/.idea/workspace (2).xml
