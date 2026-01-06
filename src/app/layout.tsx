@@ -6,6 +6,7 @@ import { ReactNode } from 'react';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 });
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <ReduxProvider>
       <html lang="en">
-        <body className={`${montserrat.className} font-sans`}>{children}</body>
+        <body className={montserrat.className}>{children}</body>
       </html>
     </ReduxProvider>
   );
