@@ -3,9 +3,10 @@
 import { setCurrentTrack, setIsPlay } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import styles from './Track.module.css';
-import formatTime from '@/utils/helper';
+import { formatTime } from '@/utils/helper';
 import Link from 'next/link';
 import { TrackType } from '@/sharedTypes/sharedTypes';
+import classNames from 'classnames';
 
 type TrackTypeProp = {
   track: TrackType;
@@ -23,6 +24,7 @@ export default function Track({ track }: TrackTypeProp) {
 
   const isCurrentTrack = currentTrack?._id === track._id;
   const showPlayedIcon = isCurrentTrack && isPlay;
+  const showCurrentTrackIcon = isCurrentTrack && !isPlay;
 
   return (
     <>
@@ -34,6 +36,16 @@ export default function Track({ track }: TrackTypeProp) {
                 <use xlinkHref={'/img/icon/sprite.svg#icon-note'}></use>
               </svg>
               {showPlayedIcon && (
+                <svg
+                  className={classNames(
+                    styles.track__titleSvg_dot,
+                    styles.active,
+                  )}
+                >
+                  <use xlinkHref={'/img/icon/sprite.svg#icon-played'}></use>
+                </svg>
+              )}
+              {showCurrentTrackIcon && (
                 <svg className={styles.track__titleSvg_dot}>
                   <use xlinkHref={'/img/icon/sprite.svg#icon-played'}></use>
                 </svg>

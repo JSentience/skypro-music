@@ -8,13 +8,13 @@ import styles from './Centerblock.module.css';
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import { useAppDispatch } from '@/store/store';
-import { setAllTracks } from '@/store/features/trackSlice';
+import { setPlaylist } from '@/store/features/trackSlice';
 
 export default function Centerblock() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setAllTracks(data));
+    dispatch(setPlaylist(data));
   }, [dispatch]);
 
   return (
