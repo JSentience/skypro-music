@@ -3,18 +3,36 @@
 import Filter from '@/components/Filter/Filter';
 import Search from '@/components/Search/Search';
 import Track from '@/components/Track/Track';
-import { data } from '@/data';
+
+import { getTracks } from '@/sevices/tracks/tracksApi';
+import { TrackType } from '@/sharedTypes/sharedTypes';
+
 import styles from './Centerblock.module.css';
 import classNames from 'classnames';
-import { useEffect } from 'react';
-import { useAppDispatch } from '@/store/store';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/store';
 import { setPlaylist } from '@/store/features/trackSlice';
 
 export default function Centerblock() {
   const dispatch = useAppDispatch();
+  const playlist = useAppSelector((state) => state.tracks.playlist || []);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    dispatch(setPlaylist(data));
+    getTracks()
+      .then((tracks: TrackType[]) => {
+        dispatch(setPlaylist(tracks));
+      })
+      .catch((error) => {
+        if (error.response) {
+          setError(error.response.data);
+        } else if (error.request) {
+          setError(error.request);
+        } else {
+          setError(error);
+        }
+        setError(error.config);
+      });
   }, [dispatch]);
 
   return (
@@ -40,7 +58,8 @@ export default function Centerblock() {
           </div>
         </div>
         <div className={styles.content__playlist}>
-          {data.map((track) => (
+          {error && <div>{error}</div>}
+          {playlist.map((track: TrackType) => (
             <Track key={track._id} track={track} />
           ))}
         </div>

@@ -1,5 +1,5 @@
 // /src/store/features/trackSlice.ts
-import { TrackType } from '@/sharedTypes/sharedTypes';
+import { SelectionType, TrackType } from '@/sharedTypes/sharedTypes';
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type initialTrackStateType = {
@@ -10,6 +10,9 @@ type initialTrackStateType = {
   isLoop?: boolean;
   isShuffle?: boolean;
   shuffledPlaylist?: TrackType[];
+  selections: SelectionType[];
+  favorites: TrackType[];
+  currentSelection: number | null;
 };
 
 const initialState: initialTrackStateType = {
@@ -20,6 +23,9 @@ const initialState: initialTrackStateType = {
   isLoop: false,
   isShuffle: false,
   shuffledPlaylist: [],
+  selections: [],
+  favorites: [],
+  currentSelection: null,
 };
 
 const trackSlice = createSlice({
@@ -94,6 +100,9 @@ const trackSlice = createSlice({
     setIsShuffle(state) {
       state.isShuffle = !state.isShuffle;
     },
+    setSelections(state, action: PayloadAction<SelectionType[]>) {
+      state.selections = action.payload;
+    },
   },
 });
 
@@ -106,6 +115,7 @@ export const {
   setNextTrack,
   setPrevTrack,
   setIsShuffle,
+  setSelections,
 } = trackSlice.actions;
 
 export const trackSliceReducer = trackSlice.reducer;
