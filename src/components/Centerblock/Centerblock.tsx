@@ -3,23 +3,27 @@
 import Filter from '@/components/Filter/Filter';
 import Search from '@/components/Search/Search';
 import Track from '@/components/Track/Track';
+import { useAuth } from '@/hooks/useAuth';
 
 import { getTracks } from '@/sevices/tracks/tracksApi';
 import { TrackType } from '@/sharedTypes/sharedTypes';
-
-import styles from './Centerblock.module.css';
+import { setPlaylist } from '@/store/features/trackSlice';
+import { useAppDispatch, useAppSelector } from '@/store/store';
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setPlaylist } from '@/store/features/trackSlice';
+
+import styles from './Centerblock.module.css';
 
 export default function Centerblock() {
+  const { isAuthenticated, accessToken } = useAuth();
   const dispatch = useAppDispatch();
   const playlist = useAppSelector((state) => state.tracks.playlist || []);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    getTracks()
+    if (!isAuthenticated || !accessToken || playlist.length > 0) return;
+
+    getTracks(accessToken)
       .then((tracks: TrackType[]) => {
         dispatch(setPlaylist(tracks));
       })
@@ -33,7 +37,7 @@ export default function Centerblock() {
         }
         setError(error.config);
       });
-  }, [dispatch]);
+  }, [dispatch, isAuthenticated, accessToken, playlist.length]);
 
   return (
     <div className={styles.centerblock}>

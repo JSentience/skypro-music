@@ -1,27 +1,31 @@
 'use client';
 
-import Link from 'next/dist/client/link';
-import Image from 'next/image';
-import styles from './Sidebar.module.css';
-import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setLogout } from '@/store/features/authSlice';
-import { redirect } from 'next/navigation';
-import { removeTokens, removeUser } from '@/utils/authTokens';
-import { useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { getSelections } from '@/sevices/tracks/selectionsApi';
 import { SelectionType } from '@/sharedTypes/sharedTypes';
+import { setLogout } from '@/store/features/authSlice';
 import { setSelections } from '@/store/features/trackSlice';
+import { useAppDispatch, useAppSelector } from '@/store/store';
+import { removeTokens, removeUser } from '@/utils/authTokens';
+import Image from 'next/image';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { useEffect } from 'react';
+import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
+  const { isAuthenticated, accessToken } = useAuth();
   const dispatch = useAppDispatch();
   const userName = useAppSelector((state) => state.auth.user?.username);
   const selections = useAppSelector((state) => state.tracks.selections);
 
   useEffect(() => {
-    getSelections().then((data: SelectionType[]) => {
+    if (!isAuthenticated || !accessToken || selections.length > 0) return;
+
+    getSelections(accessToken).then((data: SelectionType[]) => {
       dispatch(setSelections(data));
     });
-  }, [dispatch]);
+  }, [dispatch, isAuthenticated, accessToken, selections.length]);
 
   const selectionsArray = Array.isArray(selections) ? selections : [];
   const handleOut = () => {

@@ -69,7 +69,6 @@ export default function Bar() {
   const toggleLoop = () => {
     const newLoopState = !isLoop;
     dispatch(setIsLoop(newLoopState));
-    console.log('Toggle Loop:', newLoopState);
   };
 
   const onPrevTrack = () => {

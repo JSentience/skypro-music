@@ -1,10 +1,10 @@
 'use client';
 
+import styles from '@/components/Centerblock/Centerblock.module.css';
 import Filter from '@/components/Filter/Filter';
 import Search from '@/components/Search/Search';
 import Track from '@/components/Track/Track';
 import { TrackType } from '@/sharedTypes/sharedTypes';
-import styles from '@/components/Centerblock/Centerblock.module.css';
 
 interface PlaylistDisplayProps {
   tracks: TrackType[];
@@ -22,6 +22,7 @@ export default function PlaylistDisplay({
       <Filter />
 
       <div className={styles.content__playlist}>
+        {tracks.length === 0 && <div>Нет треков для отображения</div>}
         {tracks.map((track: TrackType) => (
           <Track key={track._id} track={track} />
         ))}
