@@ -1,9 +1,14 @@
 .bar {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
   background: rgba(28, 28, 28, 0.5);
+  z-index: 999; /* чтобы был поверх других элементов */
+  max-width: 1920px;
+  margin: 0 auto; /* центрирует по ширине контейнера */
+  box-sizing: border-box;
 }
 .audio {
   display: none;

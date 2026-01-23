@@ -69,7 +69,6 @@ export default function Bar() {
   const toggleLoop = () => {
     const newLoopState = !isLoop;
     dispatch(setIsLoop(newLoopState));
-    console.log('Toggle Loop:', newLoopState);
   };
 
   const onPrevTrack = () => {
@@ -142,7 +141,11 @@ export default function Bar() {
         onLoadedMetadata={onLoadedMetadata}
         onEnded={onEndedTrack}
         onError={onError}
-        src={currentTrack.track_file}
+        src={
+          typeof currentTrack.track_file === 'object'
+            ? (currentTrack.track_file as { url: string }).url
+            : currentTrack.track_file
+        }
       ></audio>
       <div className={styles.bar__content}>
         <ProgressBar
@@ -224,7 +227,10 @@ export default function Bar() {
                   <svg className={styles.trackPlay__svg}>
                     <use
                       xlinkHref={
-                        currentTrack.logo || '/img/icon/sprite.svg#icon-note'
+                        (typeof currentTrack.logo === 'string'
+                          ? currentTrack.logo
+                          : currentTrack.logo?.url) ||
+                        '/img/icon/sprite.svg#icon-note'
                       }
                     ></use>
                   </svg>

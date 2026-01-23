@@ -1,26 +1,27 @@
 'use client';
 
-import { data } from '@/data';
+import { useAppSelector } from '@/store/store';
 import classNames from 'classnames';
 import { useState } from 'react';
 import styles from './Filter.module.css';
 
-const authorFilter: string[] = [
-  ...new Set(data.map((track) => track.author)),
-].filter(Boolean);
-const yearFilter: string[] = [
-  ...new Set(data.map((track) => track.release_date.slice(0, 4))),
-].filter(Boolean);
-const genreFilter: string[] = [
-  ...new Set(data.flatMap((track) => track.genre)),
-].filter(Boolean);
-const filters: { name: string; label: string; options: string[] }[] = [
-  { name: 'author', label: 'исполнителю', options: authorFilter },
-  { name: 'genre', label: 'жанру', options: genreFilter },
-  { name: 'year', label: 'году выпуска', options: yearFilter },
-];
-
 export default function Filter() {
+  const playlist = useAppSelector((state) => state.tracks.playlist || []);
+
+  const authorFilter: string[] = [
+    ...new Set(playlist.map((track) => track.author)),
+  ].filter(Boolean);
+  const yearFilter: string[] = [
+    ...new Set(playlist.map((track) => track.release_date.slice(0, 4))),
+  ].filter(Boolean);
+  const genreFilter: string[] = [
+    ...new Set(playlist.flatMap((track) => track.genre)),
+  ].filter(Boolean);
+  const filters: { name: string; label: string; options: string[] }[] = [
+    { name: 'author', label: 'исполнителю', options: authorFilter },
+    { name: 'genre', label: 'жанру', options: genreFilter },
+    { name: 'year', label: 'году выпуска', options: yearFilter },
+  ];
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState({
     author: '',
