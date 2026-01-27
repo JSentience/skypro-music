@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 type UserType = {
   _id: number;
   username?: string;
-  password: string;
+  email: string;
 };
 type AuthState = {
   user: UserType | null;
@@ -34,12 +34,6 @@ const authSlice = createSlice({
       state.accessToken = action.payload.access;
       state.refreshToken = action.payload.refresh;
     },
-    setAccessToken(
-      state,
-      action: PayloadAction<{ access: string; refresh: string }>,
-    ) {
-      state.accessToken = action.payload.access;
-    },
     setLogout(state) {
       state.user = null;
       state.accessToken = null;
@@ -49,6 +43,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setToken, setAccessToken, setLogout } =
-  authSlice.actions;
+export const { setUser, setToken, setLogout } = authSlice.actions;
 export const authSliceReducer = authSlice.reducer;

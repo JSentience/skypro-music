@@ -11,7 +11,7 @@ type initialTrackStateType = {
   isShuffle?: boolean;
   shuffledPlaylist?: TrackType[];
   selections: SelectionType[];
-  favorites: TrackType[];
+  favoritesTracks: TrackType[];
   currentSelection: number | null;
 };
 
@@ -24,7 +24,7 @@ const initialState: initialTrackStateType = {
   isShuffle: false,
   shuffledPlaylist: [],
   selections: [],
-  favorites: [],
+  favoritesTracks: [],
   currentSelection: null,
 };
 
@@ -102,6 +102,12 @@ const trackSlice = createSlice({
     },
     setSelections(state, action: PayloadAction<SelectionType[]>) {
       state.selections = action.payload;
+    },
+    setFavoritesTracks(state, action: PayloadAction<TrackType[]>) {
+      state.favoritesTracks = action.payload;
+    },
+    addFavoriteTrack(state, action: PayloadAction<TrackType>) {
+      state.favoritesTracks = [...state.favoritesTracks, action.payload];
     },
   },
 });

@@ -1,12 +1,12 @@
 'use client';
 
+import { TrackType } from '@/sharedTypes/sharedTypes';
 import { setCurrentTrack, setIsPlay } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import styles from './Track.module.css';
 import { formatTime } from '@/utils/helper';
-import Link from 'next/link';
-import { TrackType } from '@/sharedTypes/sharedTypes';
 import classNames from 'classnames';
+import Link from 'next/link';
+import styles from './Track.module.css';
 
 type TrackTypeProp = {
   track: TrackType;

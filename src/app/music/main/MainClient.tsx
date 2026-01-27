@@ -9,16 +9,16 @@ import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useEffect, useRef } from 'react';
 
 export default function MainClient() {
-  const { isAuthenticated, accessToken } = useAuth();
+  const { isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
   const playlist = useAppSelector((state) => state.tracks.playlist || []);
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated || !accessToken || hasFetchedRef.current) return;
+    if (!isAuthenticated || hasFetchedRef.current) return;
 
     hasFetchedRef.current = true;
-    getTracks(accessToken)
+    getTracks()
       .then((tracks: TrackType[]) => {
         dispatch(setPlaylist(tracks));
       })
@@ -26,7 +26,7 @@ export default function MainClient() {
         console.error('Ошибка загрузки треков', error);
         hasFetchedRef.current = false;
       });
-  }, [isAuthenticated, accessToken, dispatch]);
+  }, [isAuthenticated, dispatch]);
 
   return <PlaylistDisplay tracks={playlist} title="Треки" />;
 }

@@ -1,17 +1,17 @@
-import { BASE_URL } from '@/sevices/constants';
-import { TrackType } from '@/sharedTypes/sharedTypes';
-import axios from 'axios';
+import { http } from '@/sevices/http';
+import { SelectionType, TrackType } from '@/sharedTypes/sharedTypes';
 
-axios.defaults.proxy = false;
+export const getTracks = async (): Promise<TrackType[]> => {
+  const response = await http.get('/catalog/track/all/');
+  return response.data.data;
+};
 
-export const getTracks = async (accessToken: string): Promise<TrackType[]> => {
-  return axios
-    .get(BASE_URL + '/catalog/track/all/', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    .then((response) => {
-      return response.data.data;
-    });
+export const getSelections = async (): Promise<SelectionType[]> => {
+  const response = await http.get('/catalog/selection/all');
+  return response.data.data;
+};
+
+export const getSelectionById = async (id: number): Promise<SelectionType> => {
+  const response = await http.get(`/catalog/selection/${id}`);
+  return response.data.data;
 };
