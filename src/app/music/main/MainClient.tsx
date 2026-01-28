@@ -4,7 +4,7 @@ import PlaylistDisplay from '@/components/PlaylistDisplay/PlaylistDisplay';
 import { useAuth } from '@/hooks/useAuth';
 import { getTracks } from '@/sevices/tracks/tracksApi';
 import { TrackType } from '@/sharedTypes/sharedTypes';
-import { setPlaylist } from '@/store/features/trackSlice';
+import { setLoading, setPlaylist } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useEffect, useRef } from 'react';
 
@@ -18,12 +18,15 @@ export default function MainClient() {
     if (!isAuthenticated || hasFetchedRef.current) return;
 
     hasFetchedRef.current = true;
+    dispatch(setLoading(true));
     getTracks()
       .then((tracks: TrackType[]) => {
         dispatch(setPlaylist(tracks));
+        dispatch(setLoading(false));
       })
       .catch((error) => {
         console.error('Ошибка загрузки треков', error);
+        dispatch(setLoading(false));
         hasFetchedRef.current = false;
       });
   }, [isAuthenticated, dispatch]);

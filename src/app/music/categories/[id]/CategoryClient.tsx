@@ -4,7 +4,7 @@ import PlaylistDisplay from '@/components/PlaylistDisplay/PlaylistDisplay';
 import { useAuth } from '@/hooks/useAuth';
 import { getSelectionById, getTracks } from '@/sevices/tracks/tracksApi';
 import { SelectionType, TrackType } from '@/sharedTypes/sharedTypes';
-import { setPlaylist } from '@/store/features/trackSlice';
+import { setLoading, setPlaylist } from '@/store/features/trackSlice';
 import { useAppDispatch } from '@/store/store';
 import { useEffect, useRef, useState } from 'react';
 
@@ -26,6 +26,7 @@ export default function CategoryClient({ selectionId }: CategoryClientProps) {
     if (Number.isNaN(parsedId)) return;
 
     hasFetchedRef.current = true;
+    dispatch(setLoading(true));
     Promise.all([getSelectionById(parsedId), getTracks()])
       .then(([selectionData, tracks]) => {
         setSelection(selectionData);
@@ -34,11 +35,13 @@ export default function CategoryClient({ selectionId }: CategoryClientProps) {
         );
         setFilteredTracks(selectedTracks);
         dispatch(setPlaylist(selectedTracks));
+        dispatch(setLoading(false));
       })
       .catch(() => {
         dispatch(setPlaylist([]));
         setSelection(null);
         setFilteredTracks([]);
+        dispatch(setLoading(false));
         hasFetchedRef.current = false;
       });
   }, [isAuthenticated, selectionId, dispatch]);
