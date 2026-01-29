@@ -5,26 +5,28 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 type initialTrackStateType = {
   currentTrack: null | TrackType;
   isPlay: boolean;
+  isLoadingTracks: boolean;
   playlist?: TrackType[];
   isLike?: boolean;
   isLoop?: boolean;
   isShuffle?: boolean;
   shuffledPlaylist?: TrackType[];
   selections: SelectionType[];
-  favorites: TrackType[];
+  favoriteTracks: TrackType[];
   currentSelection: number | null;
 };
 
 const initialState: initialTrackStateType = {
   currentTrack: null,
   isPlay: false,
+  isLoadingTracks: false,
   playlist: [],
   isLike: false,
   isLoop: false,
   isShuffle: false,
   shuffledPlaylist: [],
   selections: [],
-  favorites: [],
+  favoriteTracks: [],
   currentSelection: null,
 };
 
@@ -37,6 +39,9 @@ const trackSlice = createSlice({
     },
     setIsPlay(state, action: PayloadAction<boolean>) {
       state.isPlay = action.payload;
+    },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.isLoadingTracks = action.payload;
     },
     setPlaylist(state, action: PayloadAction<TrackType[]>) {
       state.playlist = action.payload;
@@ -103,12 +108,27 @@ const trackSlice = createSlice({
     setSelections(state, action: PayloadAction<SelectionType[]>) {
       state.selections = action.payload;
     },
+    setFavoritesTracks(state, action: PayloadAction<TrackType[]>) {
+      state.favoriteTracks = action.payload;
+      state.isLike = action.payload.length > 0;
+    },
+    addFavoriteTrack(state, action: PayloadAction<TrackType>) {
+      state.favoriteTracks = [...state.favoriteTracks, action.payload];
+      state.isLike = true;
+    },
+    removeFavoriteTrack(state, action: PayloadAction<number>) {
+      state.favoriteTracks = state.favoriteTracks.filter(
+        (track) => track._id !== action.payload,
+      );
+      state.isLike = state.favoriteTracks.length > 0;
+    },
   },
 });
 
 export const {
   setCurrentTrack,
   setIsPlay,
+  setLoading,
   setPlaylist,
   setIsLike,
   setIsLoop,
@@ -116,6 +136,9 @@ export const {
   setPrevTrack,
   setIsShuffle,
   setSelections,
+  addFavoriteTrack,
+  removeFavoriteTrack,
+  setFavoritesTracks,
 } = trackSlice.actions;
 
 export const trackSliceReducer = trackSlice.reducer;

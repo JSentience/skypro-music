@@ -58,3 +58,7 @@ next-env.d.ts
 /.github/copilot-instructions.md
 .idea/workspace (3).xml
 .roomodes
+filter-instruction.md
+instruction.md
+.idea/compiler.xml
+.vscode/settings.json

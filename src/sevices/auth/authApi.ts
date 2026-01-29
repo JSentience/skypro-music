@@ -80,3 +80,51 @@ export const getToken = async (data: AuthUserProps): Promise<TokenResponse> => {
     throw new Error('Ошибка получения токена');
   }
 };
+
+export const refreshTokenApi = async (
+  refreshToken: string,
+): Promise<TokenResponse> => {
+  try {
+    const response = await axios.post(
+      BASE_URL + '/user/token/refresh/',
+      { refresh: refreshToken },
+      {
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Ошибка обновления токена',
+      );
+    }
+    throw new Error('Ошибка обновления токена');
+  }
+};
+
+export const refreshToken = async (
+  refresh: TokenResponse,
+): Promise<{ refresh: string }> => {
+  try {
+    const response = await axios.post(
+      BASE_URL + '/user/token/refresh/',
+      { refresh },
+      {
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Ошибка обновления токенов',
+      );
+    }
+    throw new Error('Ошибка обновления токена');
+  }
+};

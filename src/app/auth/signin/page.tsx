@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import styles from './SignIn.module.css';
 
 export default function SignIn() {
@@ -25,25 +25,7 @@ export default function SignIn() {
   const onChangePassword = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
-  // const onSubmit = async (
-  //   e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  // ) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   if (!email.trim() || !password.trim()) {
-  //     return setErrorMessage('Заполните все поля');
-  //   }
-  //   authUser({ email, password })
-  //     .then((res) => {
-  //       // Обработка успешного входа, например, сохранение токенов или редирект
-  //       console.log('Успешный вход:', res);
-  //       setLoading(false);
-  //       router.push('/music/main');
-  //     })
-  //     .catch((err) => {
-  //       setErrorMessage(err.message || 'Ошибка входа');
-  //     });
-  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -55,21 +37,21 @@ export default function SignIn() {
 
     try {
       setLoading(true);
-      // 1. Вход пользователя
+      // Получение данных пользователя
       const userData = await authUser({ email, password });
 
-      // 2. Получение токенов
+      // Получение токенов
       const tokensResponse = await getToken({ email, password });
 
-      // 3. Сохранение в store
+      // Сохранение в store
       dispatch(setUser(userData));
       dispatch(setToken(tokensResponse));
 
-      // 4. Сохранение в localStorage
+      // Сохранение в localStorage
       saveTokens(tokensResponse.access, tokensResponse.refresh);
       saveUser(userData);
 
-      // 5. Переход на главную
+      // Переход на главную
       router.push('/music/main');
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Произошла ошибка');
