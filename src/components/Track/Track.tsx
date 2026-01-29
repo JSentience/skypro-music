@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from '@/store/store';
 import { formatTime } from '@/utils/helper';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useCallback, useMemo } from 'react';
 import styles from './Track.module.css';
 
 type TrackTypeProp = {
@@ -27,35 +28,48 @@ export default function Track({ track }: TrackTypeProp) {
   const isPlay = useAppSelector((state) => state.tracks.isPlay);
   const favoriteTracks = useAppSelector((state) => state.tracks.favoriteTracks);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const onClickTrack = () => {
+  const onClickTrack = useCallback(() => {
     dispatch(setCurrentTrack(track));
     dispatch(setIsPlay(true));
-  };
+  }, [dispatch, track]);
 
-  const isCurrentTrack = currentTrack?._id === track._id;
-  const showPlayedIcon = isCurrentTrack && isPlay;
-  const showCurrentTrackIcon = isCurrentTrack && !isPlay;
-  const isFavorite = favoriteTracks.some((item) => item._id === track._id);
+  const isCurrentTrack = useMemo(
+    () => currentTrack?._id === track._id,
+    [currentTrack?._id, track._id],
+  );
+  const showPlayedIcon = useMemo(
+    () => isCurrentTrack && isPlay,
+    [isCurrentTrack, isPlay],
+  );
+  const showCurrentTrackIcon = useMemo(
+    () => isCurrentTrack && !isPlay,
+    [isCurrentTrack, isPlay],
+  );
+  const isFavorite = useMemo(
+    () => favoriteTracks.some((item) => item._id === track._id),
+    [favoriteTracks, track._id],
+  );
 
-  const onToggleFavorite = async (
-    event: React.MouseEvent<HTMLOrSVGElement, MouseEvent>,
-  ) => {
-    event.stopPropagation();
+  const onToggleFavorite = useCallback(
+    async (event: React.MouseEvent<HTMLOrSVGElement, MouseEvent>) => {
+      event.stopPropagation();
 
-    if (!isAuthenticated) return;
+      if (!isAuthenticated) return;
 
-    try {
-      if (isFavorite) {
-        await removeTrackFromFavorites(track._id);
-        dispatch(removeFavoriteTrack(track._id));
-      } else {
-        await addTrackToFavorites(track._id);
-        dispatch(addFavoriteTrack(track));
+      try {
+        if (isFavorite) {
+          await removeTrackFromFavorites(track._id);
+          dispatch(removeFavoriteTrack(track._id));
+        } else {
+          await addTrackToFavorites(track._id);
+          dispatch(addFavoriteTrack(track));
+        }
+      } catch (error) {
+        console.error('Ошибка при обновлении избранного', error);
       }
-    } catch (error) {
-      console.error('Ошибка при обновлении избранного', error);
-    }
-  };
+    },
+    [dispatch, isAuthenticated, isFavorite, track],
+  );
 
   return (
     <>

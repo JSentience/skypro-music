@@ -1,7 +1,7 @@
 'use client';
 
 import { TrackType } from '@/sharedTypes/sharedTypes';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 type FilterName = 'author' | 'genre' | 'year';
 
@@ -67,12 +67,12 @@ export const useTrackFilters = (tracks: TrackType[]) => {
     });
   }, [tracks, selectedFilter, search]);
 
-  const onSelectFilter = (name: FilterName, value: string) => {
+  const onSelectFilter = useCallback((name: FilterName, value: string) => {
     setSelectedFilter((prev) => ({
       ...prev,
       [name]: prev[name] === value ? '' : value,
     }));
-  };
+  }, []);
 
   return {
     filters,

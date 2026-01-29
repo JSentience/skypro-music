@@ -1,7 +1,7 @@
 'use client';
 
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './Filter.module.css';
 
 type FilterName = 'author' | 'genre' | 'year';
@@ -40,22 +40,28 @@ export default function Filter({
 
   const currentSelectedFilter = selectedFilter ?? localSelectedFilter;
 
-  const handleFilterClick = (filterName: string) => {
-    setActiveFilter(activeFilter === filterName ? null : filterName);
-  };
+  const handleFilterClick = useCallback(
+    (filterName: string) => {
+      setActiveFilter(activeFilter === filterName ? null : filterName);
+    },
+    [activeFilter],
+  );
 
-  const handleOptionChange = (filterName: FilterName, value: string) => {
-    if (onChange) {
-      onChange(filterName, value);
-    } else {
-      setLocalSelectedFilter({
-        ...localSelectedFilter,
-        [filterName]: value,
-      });
-    }
-    // Закрываем список после выбора
-    setActiveFilter(null);
-  };
+  const handleOptionChange = useCallback(
+    (filterName: FilterName, value: string) => {
+      if (onChange) {
+        onChange(filterName, value);
+      } else {
+        setLocalSelectedFilter((prev) => ({
+          ...prev,
+          [filterName]: value,
+        }));
+      }
+      // Закрываем список после выбора
+      setActiveFilter(null);
+    },
+    [onChange],
+  );
 
   return (
     <div className={styles.centerblock__filter}>

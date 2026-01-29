@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styles from './Search.module.css';
 
 type SearchProps = {
@@ -12,16 +12,19 @@ export default function Search({ value, onChange }: SearchProps) {
   const [searchInput, setSearchInput] = useState('');
   const inputValue = value ?? searchInput;
 
-  const onSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const nextValue = e.target.value;
+  const onSearchInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const nextValue = e.target.value;
 
-    if (onChange) {
-      onChange(nextValue);
-      return;
-    }
+      if (onChange) {
+        onChange(nextValue);
+        return;
+      }
 
-    setSearchInput(nextValue);
-  };
+      setSearchInput(nextValue);
+    },
+    [onChange],
+  );
   return (
     <div className={styles.centerblock__search}>
       <svg className={styles.search__svg}>
