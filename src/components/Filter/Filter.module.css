@@ -68,7 +68,19 @@
 }
 
 .filter__item_active {
-  color: #9a48f1;
+  color: #b672ff;
+  font-variant-numeric: lining-nums proportional-nums;
+  font-family: StratosSkyeng, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px; /* 120% */
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
 }
 
 .filter__list {

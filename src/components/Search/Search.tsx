@@ -3,11 +3,24 @@
 import React, { useState } from 'react';
 import styles from './Search.module.css';
 
-export default function Search() {
+type SearchProps = {
+  value?: string;
+  onChange?: (value: string) => void;
+};
+
+export default function Search({ value, onChange }: SearchProps) {
   const [searchInput, setSearchInput] = useState('');
+  const inputValue = value ?? searchInput;
 
   const onSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value);
+    const nextValue = e.target.value;
+
+    if (onChange) {
+      onChange(nextValue);
+      return;
+    }
+
+    setSearchInput(nextValue);
   };
   return (
     <div className={styles.centerblock__search}>
@@ -19,7 +32,7 @@ export default function Search() {
         type="search"
         placeholder="Поиск"
         name="search"
-        value={searchInput}
+        value={inputValue}
         onChange={onSearchInput}
       />
     </div>
