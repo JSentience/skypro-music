@@ -3,70 +3,51 @@
 import Filter from '@/components/Filter/Filter';
 import Search from '@/components/Search/Search';
 import Track from '@/components/Track/Track';
-import { useAuth } from '@/hooks/useAuth';
-
-import { getTracks } from '@/sevices/tracks/tracksApi';
+import { useFavoriteTracks } from '@/hooks/useFavoriteTracks';
+import { useTrackFilters } from '@/hooks/useTrackFilters';
 import { TrackType } from '@/sharedTypes/sharedTypes';
-import { setPlaylist } from '@/store/features/trackSlice';
-import { useAppDispatch, useAppSelector } from '@/store/store';
-import classNames from 'classnames';
-import { useEffect, useState } from 'react';
-
+import { useAppSelector } from '@/store/store';
+import Loading from '../Loading/Loading';
 import styles from './Centerblock.module.css';
 
-export default function Centerblock() {
-  const { isAuthenticated, accessToken } = useAuth();
-  const dispatch = useAppDispatch();
-  const playlist = useAppSelector((state) => state.tracks.playlist || []);
-  const [error, setError] = useState('');
+interface CenterblockProps {
+  tracks: TrackType[];
+  title: string;
+}
 
-  useEffect(() => {
-    if (!isAuthenticated || !accessToken || playlist.length > 0) return;
-
-    getTracks(accessToken)
-      .then((tracks: TrackType[]) => {
-        dispatch(setPlaylist(tracks));
-      })
-      .catch((error) => {
-        if (error.response) {
-          setError(error.response.data);
-        } else if (error.request) {
-          setError(error.request);
-        } else {
-          setError(error);
-        }
-        setError(error.config);
-      });
-  }, [dispatch, isAuthenticated, accessToken, playlist.length]);
+export default function Centerblock({ tracks, title }: CenterblockProps) {
+  const isLoadingTracks = useAppSelector(
+    (state) => state.tracks.isLoadingTracks,
+  );
+  useFavoriteTracks();
+  const {
+    filters,
+    selectedFilter,
+    onSelectFilter,
+    search,
+    setSearch,
+    filteredTracks,
+  } = useTrackFilters(tracks);
 
   return (
     <div className={styles.centerblock}>
-      <Search />
-      <h2 className={styles.centerblock__h2}>Треки</h2>
-      <Filter />
-      <div className={styles.centerblock__content}>
-        <div className={styles.content__title}>
-          <div className={classNames(styles.playlistTitle__col, styles.col01)}>
-            Трек
-          </div>
-          <div className={classNames(styles.playlistTitle__col, styles.col02)}>
-            Исполнитель
-          </div>
-          <div className={classNames(styles.playlistTitle__col, styles.col03)}>
-            Альбом
-          </div>
-          <div className={classNames(styles.playlistTitle__col, styles.col04)}>
-            <svg className={styles.playlistTitle__svg}>
-              <use xlinkHref="/img/icon/sprite.svg#icon-watch"></use>
-            </svg>
-          </div>
-        </div>
-        <div className={styles.content__playlist}>
-          {error && <div>{error}</div>}
-          {playlist.map((track: TrackType) => (
+      <Search value={search} onChange={setSearch} />
+      <h2 className={styles.centerblock__h2}>{title}</h2>
+      <Filter
+        filters={filters}
+        selectedFilter={selectedFilter}
+        onChange={onSelectFilter}
+      />
+
+      <div className={styles.content__playlist}>
+        {isLoadingTracks && <Loading />}
+        {!isLoadingTracks && filteredTracks.length === 0 && (
+          <div style={{ color: 'white' }}>Нет треков для отображения</div>
+        )}
+        {!isLoadingTracks &&
+          filteredTracks.map((track: TrackType) => (
             <Track key={track._id} track={track} />
           ))}
-        </div>
       </div>
     </div>
   );

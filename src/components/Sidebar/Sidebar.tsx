@@ -1,6 +1,5 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
 import { getSelections } from '@/sevices/tracks/tracksApi';
 import { SelectionType } from '@/sharedTypes/sharedTypes';
 import { setLogout } from '@/store/features/authSlice';
@@ -14,20 +13,19 @@ import { useEffect, useRef } from 'react';
 import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
-  const { isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
   const userName = useAppSelector((state) => state.auth.user?.username);
   const selections = useAppSelector((state) => state.tracks.selections);
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated || hasFetchedRef.current) return;
+    if (hasFetchedRef.current) return;
 
     hasFetchedRef.current = true;
     getSelections().then((data: SelectionType[]) => {
       dispatch(setSelections(data));
     });
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch]);
 
   const selectionsArray = Array.isArray(selections) ? selections : [];
   const handleOut = () => {

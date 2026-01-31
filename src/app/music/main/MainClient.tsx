@@ -1,7 +1,6 @@
 'use client';
 
-import PlaylistDisplay from '@/components/PlaylistDisplay/PlaylistDisplay';
-import { useAuth } from '@/hooks/useAuth';
+import Centerblock from '@/components/Centerblock/Centerblock';
 import { getTracks } from '@/sevices/tracks/tracksApi';
 import { TrackType } from '@/sharedTypes/sharedTypes';
 import { setLoading, setPlaylist } from '@/store/features/trackSlice';
@@ -9,13 +8,12 @@ import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useEffect, useRef } from 'react';
 
 export default function MainClient() {
-  const { isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
   const playlist = useAppSelector((state) => state.tracks.playlist || []);
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated || hasFetchedRef.current) return;
+    if (hasFetchedRef.current) return;
 
     hasFetchedRef.current = true;
     dispatch(setLoading(true));
@@ -29,7 +27,7 @@ export default function MainClient() {
         dispatch(setLoading(false));
         hasFetchedRef.current = false;
       });
-  }, [isAuthenticated, dispatch]);
+  }, [dispatch]);
 
-  return <PlaylistDisplay tracks={playlist} title="Треки" />;
+  return <Centerblock tracks={playlist} title="Треки" />;
 }

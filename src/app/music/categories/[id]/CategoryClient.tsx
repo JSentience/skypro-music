@@ -1,7 +1,6 @@
 'use client';
 
-import PlaylistDisplay from '@/components/PlaylistDisplay/PlaylistDisplay';
-import { useAuth } from '@/hooks/useAuth';
+import Centerblock from '@/components/Centerblock/Centerblock';
 import { getSelectionById, getTracks } from '@/sevices/tracks/tracksApi';
 import { SelectionType, TrackType } from '@/sharedTypes/sharedTypes';
 import { setLoading, setPlaylist } from '@/store/features/trackSlice';
@@ -13,14 +12,13 @@ type CategoryClientProps = {
 };
 
 export default function CategoryClient({ selectionId }: CategoryClientProps) {
-  const { isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
   const [selection, setSelection] = useState<SelectionType | null>(null);
   const [filteredTracks, setFilteredTracks] = useState<TrackType[]>([]);
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated || hasFetchedRef.current) return;
+    if (hasFetchedRef.current) return;
 
     const parsedId = parseInt(selectionId, 10);
     if (Number.isNaN(parsedId)) return;
@@ -44,9 +42,7 @@ export default function CategoryClient({ selectionId }: CategoryClientProps) {
         dispatch(setLoading(false));
         hasFetchedRef.current = false;
       });
-  }, [isAuthenticated, selectionId, dispatch]);
+  }, [selectionId, dispatch]);
 
-  return (
-    <PlaylistDisplay tracks={filteredTracks} title={selection?.name || ''} />
-  );
+  return <Centerblock tracks={filteredTracks} title={selection?.name || ''} />;
 }
