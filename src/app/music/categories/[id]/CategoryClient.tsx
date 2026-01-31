@@ -1,34 +1,31 @@
 'use client';
 
-import PlaylistDisplay from '@/components/PlaylistDisplay/PlaylistDisplay';
-import { useAuth } from '@/hooks/useAuth';
-import { getSelectionById } from '@/sevices/tracks/selectionsApi';
-import { getTracks } from '@/sevices/tracks/tracksApi';
+import Centerblock from '@/components/Centerblock/Centerblock';
+import { getSelectionById, getTracks } from '@/sevices/tracks/tracksApi';
 import { SelectionType, TrackType } from '@/sharedTypes/sharedTypes';
-import { setPlaylist } from '@/store/features/trackSlice';
+import { setLoading, setPlaylist } from '@/store/features/trackSlice';
 import { useAppDispatch } from '@/store/store';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type CategoryClientProps = {
   selectionId: string;
 };
 
 export default function CategoryClient({ selectionId }: CategoryClientProps) {
-  const { isAuthenticated, accessToken } = useAuth();
   const dispatch = useAppDispatch();
   const [selection, setSelection] = useState<SelectionType | null>(null);
   const [filteredTracks, setFilteredTracks] = useState<TrackType[]>([]);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated || !accessToken) return;
+    if (hasFetchedRef.current) return;
 
     const parsedId = parseInt(selectionId, 10);
     if (Number.isNaN(parsedId)) return;
 
-    Promise.all([
-      getSelectionById(parsedId, accessToken),
-      getTracks(accessToken),
-    ])
+    hasFetchedRef.current = true;
+    dispatch(setLoading(true));
+    Promise.all([getSelectionById(parsedId), getTracks()])
       .then(([selectionData, tracks]) => {
         setSelection(selectionData);
         const selectedTracks = tracks.filter((track) =>
@@ -36,15 +33,16 @@ export default function CategoryClient({ selectionId }: CategoryClientProps) {
         );
         setFilteredTracks(selectedTracks);
         dispatch(setPlaylist(selectedTracks));
+        dispatch(setLoading(false));
       })
       .catch(() => {
         dispatch(setPlaylist([]));
         setSelection(null);
         setFilteredTracks([]);
+        dispatch(setLoading(false));
+        hasFetchedRef.current = false;
       });
-  }, [isAuthenticated, accessToken, selectionId, dispatch]);
+  }, [selectionId, dispatch]);
 
-  return (
-    <PlaylistDisplay tracks={filteredTracks} title={selection?.name || ''} />
-  );
+  return <Centerblock tracks={filteredTracks} title={selection?.name || ''} />;
 }

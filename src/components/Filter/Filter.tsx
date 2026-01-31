@@ -1,51 +1,72 @@
 'use client';
 
-import { useAppSelector } from '@/store/store';
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './Filter.module.css';
 
-export default function Filter() {
-  const playlist = useAppSelector((state) => state.tracks.playlist || []);
+type FilterName = 'author' | 'genre' | 'year';
 
-  const authorFilter: string[] = [
-    ...new Set(playlist.map((track) => track.author)),
-  ].filter(Boolean);
-  const yearFilter: string[] = [
-    ...new Set(playlist.map((track) => track.release_date.slice(0, 4))),
-  ].filter(Boolean);
-  const genreFilter: string[] = [
-    ...new Set(playlist.flatMap((track) => track.genre)),
-  ].filter(Boolean);
-  const filters: { name: string; label: string; options: string[] }[] = [
-    { name: 'author', label: 'исполнителю', options: authorFilter },
-    { name: 'genre', label: 'жанру', options: genreFilter },
-    { name: 'year', label: 'году выпуска', options: yearFilter },
-  ];
+type FilterOption = {
+  name: FilterName;
+  label: string;
+  options: string[];
+};
+
+type SelectedFilter = {
+  author: string;
+  year: string;
+  genre: string;
+};
+
+type FilterProps = {
+  filters?: FilterOption[];
+  selectedFilter?: SelectedFilter;
+  onChange?: (filterName: FilterName, value: string) => void;
+};
+
+export default function Filter({
+  filters,
+  selectedFilter,
+  onChange,
+}: FilterProps) {
+  const fallbackFilters: FilterOption[] = filters ?? [];
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState({
-    author: '',
-    year: '',
-    genre: '',
-  });
-
-  const handleFilterClick = (filterName: string) => {
-    setActiveFilter(activeFilter === filterName ? null : filterName);
-  };
-
-  const handleOptionChange = (filterName: string, value: string) => {
-    setSelectedFilter({
-      ...selectedFilter,
-      [filterName]: value,
+  const [localSelectedFilter, setLocalSelectedFilter] =
+    useState<SelectedFilter>({
+      author: '',
+      year: '',
+      genre: '',
     });
-    // Закрываем список после выбора
-    setActiveFilter(null);
-  };
+
+  const currentSelectedFilter = selectedFilter ?? localSelectedFilter;
+
+  const handleFilterClick = useCallback(
+    (filterName: string) => {
+      setActiveFilter(activeFilter === filterName ? null : filterName);
+    },
+    [activeFilter],
+  );
+
+  const handleOptionChange = useCallback(
+    (filterName: FilterName, value: string) => {
+      if (onChange) {
+        onChange(filterName, value);
+      } else {
+        setLocalSelectedFilter((prev) => ({
+          ...prev,
+          [filterName]: value,
+        }));
+      }
+      // Закрываем список после выбора
+      setActiveFilter(null);
+    },
+    [onChange],
+  );
 
   return (
     <div className={styles.centerblock__filter}>
       <div className={styles.filter__title}>Искать по:</div>
-      {filters.map((filter) => (
+      {fallbackFilters.map((filter) => (
         <div key={filter.name} className={styles.filter__wrapper}>
           <button
             className={classNames(styles.filter__button, {
@@ -63,9 +84,7 @@ export default function Filter() {
                     key={option}
                     className={classNames(styles.filter__item, {
                       [styles.filter__item_active]:
-                        selectedFilter[
-                          filter.name as keyof typeof selectedFilter
-                        ] === option,
+                        currentSelectedFilter[filter.name] === option,
                     })}
                     onClick={() => handleOptionChange(filter.name, option)}
                   >

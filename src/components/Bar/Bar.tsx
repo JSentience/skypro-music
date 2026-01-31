@@ -2,6 +2,12 @@
 
 import ProgressBar from '@/components/ProgressBar/ProgressBar';
 import {
+  addTrackToFavorites,
+  removeTrackFromFavorites,
+} from '@/sevices/tracks/tracksApi';
+import {
+  addFavoriteTrack,
+  removeFavoriteTrack,
   selectCanNext,
   selectCanPrev,
   setIsLoop,
@@ -13,8 +19,16 @@ import {
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { getTimePanel } from '@/utils/helper';
 import classNames from 'classnames';
-import Link from 'next/dist/client/link';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import {
+  ChangeEvent,
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styles from './Bar.module.css';
 
 export default function Bar() {
@@ -36,55 +50,59 @@ export default function Bar() {
   }, [volume]);
   const canNext = useAppSelector(selectCanNext);
   const canPrev = useAppSelector(selectCanPrev);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const favoriteTracks = useAppSelector((state) => state.tracks.favoriteTracks);
+  const isFavorite = useMemo(
+    () => favoriteTracks.some((item) => item._id === currentTrack?._id),
+    [favoriteTracks, currentTrack?._id],
+  );
 
-  if (!currentTrack) {
-    return <></>;
-  }
-
-  const playAudio = () => {
+  const playAudio = useCallback(() => {
     if (audioRef.current && isLoadedTrack) {
       audioRef.current.play().catch((error) => {
         console.error('Ошибка воспроизведения:', error);
       });
       dispatch(setIsPlay(true));
     }
-  };
-  const pauseAudio = () => {
+  }, [dispatch, isLoadedTrack]);
+
+  const pauseAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       dispatch(setIsPlay(false));
     }
-  };
+  }, [dispatch]);
 
-  const onNextTrack = () => {
+  const onNextTrack = useCallback(() => {
     dispatch(setNextTrack());
     setIsLoadedTrack(false);
     dispatch(setIsPlay(true));
-  };
+  }, [dispatch]);
 
-  const onToggleShuffle = () => {
+  const onToggleShuffle = useCallback(() => {
     dispatch(setIsShuffle());
-  };
+  }, [dispatch]);
 
-  const toggleLoop = () => {
+  const toggleLoop = useCallback(() => {
     const newLoopState = !isLoop;
     dispatch(setIsLoop(newLoopState));
-  };
+  }, [dispatch, isLoop]);
 
-  const onPrevTrack = () => {
+  const onPrevTrack = useCallback(() => {
     dispatch(setPrevTrack());
     setIsLoadedTrack(false);
     dispatch(setIsPlay(true));
-  };
+  }, [dispatch]);
 
-  const play = () => {
+  const play = useCallback(() => {
     if (audioRef.current?.paused) {
       playAudio();
     } else {
       pauseAudio();
     }
-  };
-  const onTimeUpdate = () => {
+  }, [pauseAudio, playAudio]);
+
+  const onTimeUpdate = useCallback(() => {
     if (audioRef.current && isLoadedTrack) {
       const currentTime = audioRef.current.currentTime;
       const duration = audioRef.current.duration;
@@ -92,8 +110,9 @@ export default function Bar() {
       const timeString = getTimePanel(currentTime, duration);
       if (timeString) setTimeDisplay(timeString);
     }
-  };
-  const onLoadedMetadata = () => {
+  }, [isLoadedTrack]);
+
+  const onLoadedMetadata = useCallback(() => {
     if (audioRef.current) {
       setIsLoadedTrack(true);
       const duration = audioRef.current.duration;
@@ -109,26 +128,54 @@ export default function Bar() {
         });
       }
     }
-  };
-  const onEndedTrack = () => {
+  }, [isPlay, volume]);
+
+  const onEndedTrack = useCallback(() => {
     if (!isLoop) {
       onNextTrack();
     }
-  };
-  const onError = () => {
+  }, [isLoop, onNextTrack]);
+
+  const onError = useCallback(() => {
     console.error('Ошибка воспроизведения аудио');
     dispatch(setIsPlay(false));
-  };
+  }, [dispatch]);
 
-  const onChangeProgress = (e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeProgress = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
       audioRef.current.currentTime = Number(e.target.value);
     }
-  };
-  const onChangeVolume = (e: ChangeEvent<HTMLInputElement>) => {
+  }, []);
+
+  const onChangeVolume = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const newVolume = Number(e.target.value);
     setVolume(newVolume);
-  };
+  }, []);
+
+  const onToggleFavorite = useCallback(
+    async (event: MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+
+      if (!isAuthenticated || !currentTrack) return;
+
+      try {
+        if (isFavorite) {
+          await removeTrackFromFavorites(currentTrack._id);
+          dispatch(removeFavoriteTrack(currentTrack._id));
+        } else {
+          await addTrackToFavorites(currentTrack._id);
+          dispatch(addFavoriteTrack(currentTrack));
+        }
+      } catch (error) {
+        console.error('Ошибка при обновлении избранного', error);
+      }
+    },
+    [dispatch, isAuthenticated, isFavorite, currentTrack],
+  );
+
+  if (!currentTrack) {
+    return <></>;
+  }
 
   return (
     <div className={styles.bar}>
@@ -247,27 +294,33 @@ export default function Bar() {
                 </div>
               </div>
 
-              <div className={styles.trackPlay__dislike}>
-                <div
-                  className={classNames(
-                    styles.player__btnShuffle,
-                    styles.btnIcon,
-                  )}
-                >
-                  <svg className={styles.trackPlay__likeSvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-like"></use>
-                  </svg>
-                </div>
-                <div
-                  className={classNames(
-                    styles.trackPlay__dislike,
-                    styles.btnIcon,
-                  )}
-                >
-                  <svg className={styles.trackPlay__dislikeSvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-dislike"></use>
-                  </svg>
-                </div>
+              <div
+                className={styles.trackPlay__dislike}
+                onClick={onToggleFavorite}
+              >
+                {isFavorite ? (
+                  <div
+                    className={classNames(
+                      styles.player__btnShuffle,
+                      styles.btnIcon,
+                    )}
+                  >
+                    <svg className={styles.trackPlay__likeSvg}>
+                      <use xlinkHref="/img/icon/sprite.svg#icon-like"></use>
+                    </svg>
+                  </div>
+                ) : (
+                  <div
+                    className={classNames(
+                      styles.trackPlay__dislike,
+                      styles.btnIcon,
+                    )}
+                  >
+                    <svg className={styles.trackPlay__dislikeSvg}>
+                      <use xlinkHref="/img/icon/sprite.svg#icon-dislike"></use>
+                    </svg>
+                  </div>
+                )}
               </div>
             </div>
           </div>
