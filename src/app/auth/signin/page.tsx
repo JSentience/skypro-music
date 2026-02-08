@@ -1,9 +1,10 @@
 'use client';
 
-import { authUser, getToken } from '@/sevices/auth/authApi';
+import { authUser, getToken } from '@/services/auth/authApi';
 import { setToken, setUser } from '@/store/features/authSlice';
 import { useAppDispatch } from '@/store/store';
 import { saveTokens, saveUser } from '@/utils/authTokens';
+import { notify } from '@/utils/notify';
 import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -32,29 +33,28 @@ export default function SignIn() {
 
     if (!email || !password) {
       setErrorMessage('Заполните все поля');
+      notify.error('Заполните все поля');
       return;
     }
 
     try {
       setLoading(true);
-      // Получение данных пользователя
       const userData = await authUser({ email, password });
 
-      // Получение токенов
       const tokensResponse = await getToken({ email, password });
 
-      // Сохранение в store
       dispatch(setUser(userData));
       dispatch(setToken(tokensResponse));
 
-      // Сохранение в localStorage
       saveTokens(tokensResponse.access, tokensResponse.refresh);
       saveUser(userData);
 
-      // Переход на главную
+      notify.success('Вы успешно вошли');
       router.push('/music/main');
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'Произошла ошибка');
+      const message = err instanceof Error ? err.message : 'Произошла ошибка';
+      setErrorMessage(message);
+      notify.error(message);
     } finally {
       setLoading(false);
     }

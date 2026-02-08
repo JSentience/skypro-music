@@ -1,10 +1,11 @@
 'use client';
 
 import Centerblock from '@/components/Centerblock/Centerblock';
-import { getTracks } from '@/sevices/tracks/tracksApi';
+import { getTracks } from '@/services/tracks/tracksApi';
 import { TrackType } from '@/sharedTypes/sharedTypes';
 import { setLoading, setPlaylist } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
+import { notify } from '@/utils/notify';
 import { useEffect, useRef } from 'react';
 
 export default function MainClient() {
@@ -24,6 +25,7 @@ export default function MainClient() {
       })
       .catch((error) => {
         console.error('Ошибка загрузки треков', error);
+        notify.error('Не удалось загрузить треки');
         dispatch(setLoading(false));
         hasFetchedRef.current = false;
       });

@@ -25,3 +25,166 @@
     transform: rotate(360deg);
   }
 }
+
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.skeletonTitle {
+  display: flex;
+  align-items: center;
+  width: 447px;
+  gap: 17px;
+}
+
+.skeletonIcon {
+  border-radius: 6px;
+}
+
+.skeletonText {
+  width: 280px;
+}
+
+.skeletonAuthor {
+  width: 321px;
+}
+
+.skeletonAlbum {
+  width: 245px;
+}
+
+.skeletonTime {
+  width: 60px;
+}
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+}
+
+.pageCard {
+  width: min(520px, 90vw);
+  background: rgba(24, 24, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.equalizer {
+  display: grid;
+  grid-template-columns: repeat(8, 6px);
+  gap: 6px;
+  align-items: end;
+  height: 40px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.equalizerBar {
+  width: 6px;
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #ad61ff 0%, #4e4e4e 100%);
+  transform-origin: bottom;
+  animation: equalize 1s ease-in-out infinite;
+}
+
+.equalizerBar:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.equalizerBar:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.equalizerBar:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.equalizerBar:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.equalizerBar:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+.equalizerBar:nth-child(6) {
+  animation-delay: 0.5s;
+}
+
+.equalizerBar:nth-child(7) {
+  animation-delay: 0.6s;
+}
+
+.equalizerBar:nth-child(8) {
+  animation-delay: 0.7s;
+}
+
+.pageHeaderText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pageList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pageRow {
+  display: grid;
+  grid-template-columns: 24px 1fr 120px;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageRowTitle {
+  width: 100%;
+}
+
+.pageRowMeta {
+  width: 100%;
+}
+
+@keyframes equalize {
+  0% {
+    transform: scaleY(0.25);
+    opacity: 0.6;
+  }
+  30% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleY(0.55);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scaleY(0.3);
+    opacity: 0.7;
+  }
+}

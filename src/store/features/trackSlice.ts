@@ -1,8 +1,7 @@
-// /src/store/features/trackSlice.ts
 import { SelectionType, TrackType } from '@/sharedTypes/sharedTypes';
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type initialTrackStateType = {
+type TrackState = {
   currentTrack: null | TrackType;
   isPlay: boolean;
   isLoadingTracks: boolean;
@@ -22,7 +21,7 @@ type initialTrackStateType = {
   search: string;
 };
 
-const initialState: initialTrackStateType = {
+const initialState: TrackState = {
   currentTrack: null,
   isPlay: false,
   isLoadingTracks: false,
@@ -156,12 +155,10 @@ const trackSlice = createSlice({
     },
     setFilterYears(state, action: PayloadAction<string>) {
       const year = action.payload;
-      // Если выбрана та же опция, снимаем выбор
       if (state.filters.year.includes(year)) {
         state.filters.year = [];
         return;
       }
-      // Заменяем на новое значение (только одно значение)
       state.filters.year = [year];
     },
     resetFilters(state) {
@@ -199,9 +196,7 @@ export const {
 } = trackSlice.actions;
 
 export const trackSliceReducer = trackSlice.reducer;
-
-// селекторы
-type RootState = { tracks: initialTrackStateType };
+type RootState = { tracks: TrackState };
 
 const selectTrackState = (state: RootState) => state.tracks;
 

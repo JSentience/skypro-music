@@ -1,10 +1,11 @@
 'use client';
 
 import Centerblock from '@/components/Centerblock/Centerblock';
-import { getSelectionById, getTracks } from '@/sevices/tracks/tracksApi';
+import { getSelectionById, getTracks } from '@/services/tracks/tracksApi';
 import { SelectionType, TrackType } from '@/sharedTypes/sharedTypes';
 import { setLoading, setPlaylist } from '@/store/features/trackSlice';
 import { useAppDispatch } from '@/store/store';
+import { notify } from '@/utils/notify';
 import { useEffect, useRef, useState } from 'react';
 
 type CategoryClientProps = {
@@ -35,7 +36,9 @@ export default function CategoryClient({ selectionId }: CategoryClientProps) {
         dispatch(setPlaylist(selectedTracks));
         dispatch(setLoading(false));
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Ошибка загрузки подборки', error);
+        notify.error('Не удалось загрузить подборку');
         dispatch(setPlaylist([]));
         setSelection(null);
         setFilteredTracks([]);

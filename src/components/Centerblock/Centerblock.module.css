@@ -45,6 +45,43 @@
   overflow-y: auto;
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 24px 0;
+  color: #ffffff;
+}
+
+.emptyState__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.emptyState__subtitle {
+  font-size: 14px;
+  color: #a7a7a7;
+  margin: 0;
+}
+
+.emptyState__button {
+  margin-top: 8px;
+  background: #ad61ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s ease;
+}
+
+.emptyState__button:hover {
+  opacity: 0.85;
+}
+
 .playlistTitle__col {
   font-style: normal;
   font-weight: 400;

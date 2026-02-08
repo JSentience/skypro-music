@@ -3,7 +3,7 @@
 import {
   addTrackToFavorites,
   removeTrackFromFavorites,
-} from '@/sevices/tracks/tracksApi';
+} from '@/services/tracks/tracksApi';
 import { TrackType } from '@/sharedTypes/sharedTypes';
 import {
   addFavoriteTrack,
@@ -13,6 +13,7 @@ import {
 } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { formatTime } from '@/utils/helper';
+import { notify } from '@/utils/notify';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useCallback, useMemo } from 'react';
@@ -54,18 +55,24 @@ export default function Track({ track }: TrackTypeProp) {
     async (event: React.MouseEvent<HTMLOrSVGElement, MouseEvent>) => {
       event.stopPropagation();
 
-      if (!isAuthenticated) return;
+      if (!isAuthenticated) {
+        notify.info('Войдите, чтобы добавить трек в избранное');
+        return;
+      }
 
       try {
         if (isFavorite) {
           await removeTrackFromFavorites(track._id);
           dispatch(removeFavoriteTrack(track._id));
+          notify.info('Трек удалён из избранного');
         } else {
           await addTrackToFavorites(track._id);
           dispatch(addFavoriteTrack(track));
+          notify.success('Трек добавлен в избранное');
         }
       } catch (error) {
         console.error('Ошибка при обновлении избранного', error);
+        notify.error('Не удалось обновить избранное');
       }
     },
     [dispatch, isAuthenticated, isFavorite, track],

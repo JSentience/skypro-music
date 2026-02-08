@@ -1,8 +1,9 @@
 'use client';
-import { getToken, registrationUser } from '@/sevices/auth/authApi';
+import { getToken, registrationUser } from '@/services/auth/authApi';
 import { setToken, setUser } from '@/store/features/authSlice';
 import { useAppDispatch } from '@/store/store';
 import { saveTokens, saveUser } from '@/utils/authTokens';
+import { notify } from '@/utils/notify';
 import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,11 +40,13 @@ export default function SignUp() {
 
     if (!email || !password || !username || !confirmPassword) {
       setError('Заполните все поля');
+      notify.error('Заполните все поля');
       return;
     }
 
     if (password !== confirmPassword) {
       setError('Пароли не совпадают');
+      notify.error('Пароли не совпадают');
       return;
     }
 
@@ -63,9 +66,12 @@ export default function SignUp() {
       saveTokens(tokensResponse.access, tokensResponse.refresh);
       saveUser(signUpResponse.result);
 
+      notify.success('Регистрация успешна');
       router.push('/music/main');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+      const message = err instanceof Error ? err.message : 'Произошла ошибка';
+      setError(message);
+      notify.error(message);
     } finally {
       setLoading(false);
     }

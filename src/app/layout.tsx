@@ -1,8 +1,9 @@
+import ToastProvider from '@/components/ToastProvider/ToastProvider';
 import ReduxProvider from '@/store/ReduxProvider';
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
-import './globals.css';
 import { ReactNode } from 'react';
+import './globals.css';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -22,7 +23,10 @@ export default function RootLayout({
   return (
     <ReduxProvider>
       <html lang="en">
-        <body className={montserrat.className}>{children}</body>
+        <body className={montserrat.className}>
+          {children}
+          <ToastProvider />
+        </body>
       </html>
     </ReduxProvider>
   );

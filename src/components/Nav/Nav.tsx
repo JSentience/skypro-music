@@ -1,11 +1,9 @@
 'use client';
 
-import { setLogout } from '@/store/features/authSlice';
-import { useAppDispatch, useAppSelector } from '@/store/store';
-import { removeTokens, removeUser } from '@/utils/authTokens';
+import { useLogout } from '@/hooks/useLogout';
+import { useAppSelector } from '@/store/store';
 import Image from 'next/image';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { useRef, useState } from 'react';
 import styles from './Nav.module.css';
 
@@ -14,17 +12,10 @@ export default function Nav() {
   const menuRef = useRef<HTMLDivElement>(null);
   const burgerRef = useRef<HTMLDivElement>(null);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const dispatch = useAppDispatch();
-  const handleOut = () => {
-    dispatch(setLogout());
-    removeUser();
-    removeTokens();
-    redirect('/auth/signin');
-  };
+  const handleOut = useLogout();
   return (
     <nav className={styles.main__nav}>
       <div className={styles.nav__logo}>
-        {/*TODO: img –> Image*/}
         <Image
           width={250}
           height={170}
@@ -51,7 +42,6 @@ export default function Nav() {
       >
         <ul className={styles.menu__list}>
           <li className={styles.menu__item}>
-            {/*TODO: a -> Link*/}
             <Link href="/" className={styles.menu__link}>
               Главная
             </Link>
