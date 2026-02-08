@@ -5,27 +5,41 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 type initialTrackStateType = {
   currentTrack: null | TrackType;
   isPlay: boolean;
+  isLoadingTracks: boolean;
   playlist?: TrackType[];
   isLike?: boolean;
   isLoop?: boolean;
   isShuffle?: boolean;
   shuffledPlaylist?: TrackType[];
   selections: SelectionType[];
-  favorites: TrackType[];
+  favoriteTracks: TrackType[];
   currentSelection: number | null;
+  filters: {
+    genre: string[];
+    author: string[];
+    year: string[];
+  };
+  search: string;
 };
 
 const initialState: initialTrackStateType = {
   currentTrack: null,
   isPlay: false,
+  isLoadingTracks: false,
   playlist: [],
   isLike: false,
   isLoop: false,
   isShuffle: false,
   shuffledPlaylist: [],
   selections: [],
-  favorites: [],
+  favoriteTracks: [],
   currentSelection: null,
+  filters: {
+    genre: [],
+    author: [],
+    year: [],
+  },
+  search: '',
 };
 
 const trackSlice = createSlice({
@@ -37,6 +51,9 @@ const trackSlice = createSlice({
     },
     setIsPlay(state, action: PayloadAction<boolean>) {
       state.isPlay = action.payload;
+    },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.isLoadingTracks = action.payload;
     },
     setPlaylist(state, action: PayloadAction<TrackType[]>) {
       state.playlist = action.payload;
@@ -103,12 +120,67 @@ const trackSlice = createSlice({
     setSelections(state, action: PayloadAction<SelectionType[]>) {
       state.selections = action.payload;
     },
+    setFavoritesTracks(state, action: PayloadAction<TrackType[]>) {
+      state.favoriteTracks = action.payload;
+      state.isLike = action.payload.length > 0;
+    },
+    addFavoriteTrack(state, action: PayloadAction<TrackType>) {
+      state.favoriteTracks = [...state.favoriteTracks, action.payload];
+      state.isLike = true;
+    },
+    removeFavoriteTrack(state, action: PayloadAction<number>) {
+      state.favoriteTracks = state.favoriteTracks.filter(
+        (track) => track._id !== action.payload,
+      );
+      state.isLike = state.favoriteTracks.length > 0;
+    },
+    setFilterAuthors(state, action: PayloadAction<string>) {
+      const author = action.payload;
+      if (state.filters.author.includes(author)) {
+        state.filters.author = state.filters.author.filter(
+          (value) => value !== author,
+        );
+        return;
+      }
+      state.filters.author = [...state.filters.author, author];
+    },
+    setFilterGenre(state, action: PayloadAction<string>) {
+      const genre = action.payload;
+      if (state.filters.genre.includes(genre)) {
+        state.filters.genre = state.filters.genre.filter(
+          (value) => value !== genre,
+        );
+        return;
+      }
+      state.filters.genre = [...state.filters.genre, genre];
+    },
+    setFilterYears(state, action: PayloadAction<string>) {
+      const year = action.payload;
+      // Если выбрана та же опция, снимаем выбор
+      if (state.filters.year.includes(year)) {
+        state.filters.year = [];
+        return;
+      }
+      // Заменяем на новое значение (только одно значение)
+      state.filters.year = [year];
+    },
+    resetFilters(state) {
+      state.filters = {
+        genre: [],
+        author: [],
+        year: [],
+      };
+    },
+    setSearch(state, action: PayloadAction<string>) {
+      state.search = action.payload;
+    },
   },
 });
 
 export const {
   setCurrentTrack,
   setIsPlay,
+  setLoading,
   setPlaylist,
   setIsLike,
   setIsLoop,
@@ -116,6 +188,14 @@ export const {
   setPrevTrack,
   setIsShuffle,
   setSelections,
+  addFavoriteTrack,
+  removeFavoriteTrack,
+  setFavoritesTracks,
+  setFilterAuthors,
+  setFilterGenre,
+  setFilterYears,
+  resetFilters,
+  setSearch,
 } = trackSlice.actions;
 
 export const trackSliceReducer = trackSlice.reducer;
@@ -157,4 +237,14 @@ export const selectCanPrev = createSelector(
     if (track.isShuffle) return true;
     return curIndex > 0;
   },
+);
+
+export const selectTrackFilters = createSelector(
+  [selectTrackState],
+  (track) => track.filters,
+);
+
+export const selectTrackSearch = createSelector(
+  [selectTrackState],
+  (track) => track.search,
 );

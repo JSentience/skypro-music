@@ -3,70 +3,152 @@
 import Filter from '@/components/Filter/Filter';
 import Search from '@/components/Search/Search';
 import Track from '@/components/Track/Track';
-import { useAuth } from '@/hooks/useAuth';
-
-import { getTracks } from '@/sevices/tracks/tracksApi';
+import { useFavoriteTracks } from '@/hooks/useFavoriteTracks';
 import { TrackType } from '@/sharedTypes/sharedTypes';
-import { setPlaylist } from '@/store/features/trackSlice';
+import {
+  resetFilters,
+  selectTrackFilters,
+  selectTrackSearch,
+  setFilterAuthors,
+  setFilterGenre,
+  setFilterYears,
+  setSearch as setSearchAction,
+} from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import classNames from 'classnames';
-import { useEffect, useState } from 'react';
-
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useMemo } from 'react';
+import Loading from '../Loading/Loading';
 import styles from './Centerblock.module.css';
 
-export default function Centerblock() {
-  const { isAuthenticated, accessToken } = useAuth();
+interface CenterblockProps {
+  tracks: TrackType[];
+  title: string;
+}
+
+type FilterName = 'author' | 'genre' | 'year';
+
+type FilterOption = {
+  name: FilterName;
+  label: string;
+  options: string[];
+};
+
+type SelectedFilter = {
+  author: string[];
+  genre: string[];
+  year: string[];
+};
+
+export default function Centerblock({ tracks, title }: CenterblockProps) {
   const dispatch = useAppDispatch();
-  const playlist = useAppSelector((state) => state.tracks.playlist || []);
-  const [error, setError] = useState('');
+  const pathname = usePathname();
+  const isLoadingTracks = useAppSelector(
+    (state) => state.tracks.isLoadingTracks,
+  );
+  useFavoriteTracks();
+  const selectedFilter = useAppSelector(selectTrackFilters) as SelectedFilter;
+  const search = useAppSelector(selectTrackSearch);
+
+  const filters = useMemo<FilterOption[]>(() => {
+    const authorFilter = Array.from(
+      new Set(tracks.map((track) => track.author)),
+    ).filter(Boolean);
+    const yearFilter = ['по умолчанию', 'новые', 'старые'];
+    const genreFilter = Array.from(
+      new Set(tracks.flatMap((track) => track.genre)),
+    ).filter(Boolean);
+
+    return [
+      { name: 'author', label: 'исполнителю', options: authorFilter },
+      { name: 'genre', label: 'жанру', options: genreFilter },
+      { name: 'year', label: 'году выпуска', options: yearFilter },
+    ];
+  }, [tracks]);
+
+  const onSelectFilter = useCallback(
+    (name: FilterName, value: string) => {
+      if (name === 'author') {
+        dispatch(setFilterAuthors(value));
+        return;
+      }
+      if (name === 'genre') {
+        dispatch(setFilterGenre(value));
+        return;
+      }
+      dispatch(setFilterYears(value));
+    },
+    [dispatch],
+  );
+
+  const setSearch = useCallback(
+    (value: string) => {
+      dispatch(setSearchAction(value));
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
-    if (!isAuthenticated || !accessToken || playlist.length > 0) return;
+    dispatch(resetFilters());
+  }, [dispatch, pathname]);
 
-    getTracks(accessToken)
-      .then((tracks: TrackType[]) => {
-        dispatch(setPlaylist(tracks));
-      })
-      .catch((error) => {
-        if (error.response) {
-          setError(error.response.data);
-        } else if (error.request) {
-          setError(error.request);
-        } else {
-          setError(error);
-        }
-        setError(error.config);
-      });
-  }, [dispatch, isAuthenticated, accessToken, playlist.length]);
+  const filteredTracks = useMemo(() => {
+    const loweredSearch = search.trim().toLowerCase();
+
+    let filtered = tracks.filter((track) => {
+      if (
+        selectedFilter.author.length > 0 &&
+        !selectedFilter.author.includes(track.author)
+      ) {
+        return false;
+      }
+      if (
+        selectedFilter.genre.length > 0 &&
+        !track.genre.some((value) => selectedFilter.genre.includes(value))
+      ) {
+        return false;
+      }
+      if (!loweredSearch) return true;
+
+      const byName = track.name.toLowerCase().includes(loweredSearch);
+      const byAuthor = track.author.toLowerCase().includes(loweredSearch);
+      return byName || byAuthor;
+    });
+
+    // Применяем сортировку по году только при явном выборе
+    if (selectedFilter.year.length > 0) {
+      const sortOrder = selectedFilter.year[0];
+      if (sortOrder === 'новые' || sortOrder === 'старые') {
+        filtered = [...filtered].sort((a, b) => {
+          const yearA = parseInt(a.release_date.slice(0, 4));
+          const yearB = parseInt(b.release_date.slice(0, 4));
+          return sortOrder === 'новые' ? yearB - yearA : yearA - yearB;
+        });
+      }
+      // Если выбрано "по умолчанию" - не применяем сортировку
+    }
+
+    return filtered;
+  }, [tracks, selectedFilter, search]);
 
   return (
     <div className={styles.centerblock}>
-      <Search />
-      <h2 className={styles.centerblock__h2}>Треки</h2>
-      <Filter />
-      <div className={styles.centerblock__content}>
-        <div className={styles.content__title}>
-          <div className={classNames(styles.playlistTitle__col, styles.col01)}>
-            Трек
-          </div>
-          <div className={classNames(styles.playlistTitle__col, styles.col02)}>
-            Исполнитель
-          </div>
-          <div className={classNames(styles.playlistTitle__col, styles.col03)}>
-            Альбом
-          </div>
-          <div className={classNames(styles.playlistTitle__col, styles.col04)}>
-            <svg className={styles.playlistTitle__svg}>
-              <use xlinkHref="/img/icon/sprite.svg#icon-watch"></use>
-            </svg>
-          </div>
-        </div>
-        <div className={styles.content__playlist}>
-          {error && <div>{error}</div>}
-          {playlist.map((track: TrackType) => (
+      <Search value={search} onChange={setSearch} />
+      <h2 className={styles.centerblock__h2}>{title}</h2>
+      <Filter
+        filters={filters}
+        selectedFilter={selectedFilter}
+        onChange={onSelectFilter}
+      />
+
+      <div className={styles.content__playlist}>
+        {isLoadingTracks && <Loading />}
+        {!isLoadingTracks && filteredTracks.length === 0 && (
+          <div style={{ color: 'white' }}>Нет треков для отображения</div>
+        )}
+        {!isLoadingTracks &&
+          filteredTracks.map((track: TrackType) => (
             <Track key={track._id} track={track} />
           ))}
-        </div>
       </div>
     </div>
   );

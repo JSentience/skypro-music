@@ -138,6 +138,11 @@
   stroke: #696969;
 }
 
+.track__timeSvg_active {
+  fill: #ad61ff;
+  stroke: #ad61ff;
+}
+
 .track__timeText {
   font-style: normal;
   font-weight: 400;
