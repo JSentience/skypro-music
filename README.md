@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skypro Music
 
-## Getting Started
+Веб‑приложение музыкального сервиса на Next.js (App Router) с авторизацией, плейлистами и избранным. Проект использует Redux Toolkit, Axios и UI‑улучшения (skeleton/loading, уведомления).
 
-First, run the development server:
+## Возможности
+
+- Авторизация и регистрация
+- Списки треков, подборки и избранное
+- Фильтры по исполнителю/жанру/году и поиск
+- Skeleton‑загрузка для треков и переходов между страницами
+- Уведомления через `react-toastify`
+
+## Технологии
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Redux Toolkit + React Redux
+- Axios
+- Jest + Testing Library
+- ESLint
+
+## Быстрый старт
+
+1. Установить зависимости:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Запустить dev‑сервер:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Открой [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Скрипты
 
-To learn more about Next.js, take a look at the following resources:
+- `yarn dev` — запуск в dev‑режиме
+- `yarn build` — сборка
+- `yarn start` — запуск production‑сборки
+- `yarn lint` — линтер
+- `yarn test` — тесты
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Базовый URL API хранится в `src/sevices/constants.ts`.
 
-## Deploy on Vercel
+## Уведомления (Toast)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Глобальный контейнер подключается в `src/app/layout.tsx` через `ToastProvider`. Для вызова:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```ts
+import { notify } from '@/utils/notify';
+
+notify.success('Готово!');
+notify.error('Ошибка');
+```
+
+## Skeleton‑загрузка
+
+Компонент `Loading` поддерживает режимы:
+
+- `variant="tracks"` — список треков
+- `variant="page"` — загрузка страницы
+
+Используется в `src/components/Loading/Loading.tsx` и `src/app/loading.tsx`.
+
+## Структура проекта
+
+```
+src/
+	app/                # роуты и layout
+	components/         # UI‑компоненты
+	hooks/              # пользовательские хуки
+	sevices/            # API/HTTP слой
+	store/              # Redux store и слайсы
+	utils/              # утилиты
+	sharedTypes/        # общие типы
+```
+
+## Тесты
+
+Тесты размещены рядом с компонентами (например, `Bar`, `Track`, `Centerblock`).
+
+## Примечания
+
+- Если планируется перенос API‑URL в переменные окружения, добавь `.env.local` и используй `NEXT_PUBLIC_API_URL`.
+- Для единообразия ошибок можно расширить `notify` и перехватчики в `http.ts`.

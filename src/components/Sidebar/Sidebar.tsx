@@ -1,14 +1,12 @@
 'use client';
 
-import { getSelections } from '@/sevices/tracks/tracksApi';
+import { useLogout } from '@/hooks/useLogout';
+import { getSelections } from '@/services/tracks/tracksApi';
 import { SelectionType } from '@/sharedTypes/sharedTypes';
-import { setLogout } from '@/store/features/authSlice';
 import { setSelections } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { removeTokens, removeUser } from '@/utils/authTokens';
 import Image from 'next/image';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import styles from './Sidebar.module.css';
 
@@ -17,6 +15,7 @@ export default function Sidebar() {
   const userName = useAppSelector((state) => state.auth.user?.username);
   const selections = useAppSelector((state) => state.tracks.selections);
   const hasFetchedRef = useRef(false);
+  const handleOut = useLogout();
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
@@ -28,12 +27,6 @@ export default function Sidebar() {
   }, [dispatch]);
 
   const selectionsArray = Array.isArray(selections) ? selections : [];
-  const handleOut = () => {
-    dispatch(setLogout());
-    removeUser();
-    removeTokens();
-    redirect('/auth/signin');
-  };
 
   return (
     <div className={styles.main__sidebar}>

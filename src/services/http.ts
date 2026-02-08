@@ -1,10 +1,10 @@
-import { BASE_URL } from '@/sevices/constants';
+import { BASE_URL } from '@/services/constants';
 import { setLogout, setToken } from '@/store/features/authSlice';
 import type { AppStore } from '@/store/store';
-import { removeTokens, removeUser, saveTokens } from '@/utils/authTokens';
+import { clearAuthData, saveTokens } from '@/utils/authTokens';
+import { notify } from '@/utils/notify';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-// Будет заполнено при инициализации
 let store: AppStore | null = null;
 
 export const initializeHttpStore = (appStore: AppStore) => {
@@ -15,7 +15,6 @@ const CONTENT_TYPE_HEADER = 'content-type';
 const AUTH_HEADER = 'Authorization';
 const CONTENT_TYPE_JSON = 'application/json';
 
-// Создаём axios-инстанс
 export const http = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -23,7 +22,6 @@ export const http = axios.create({
   },
 });
 
-// Флаг, чтобы избежать множественных рефреш-запросов (гоночные условия)
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
 
@@ -72,15 +70,13 @@ const logoutWithRedirect = () => {
   if (store) {
     store.dispatch(setLogout());
   }
-  removeTokens();
-  removeUser();
+  clearAuthData();
 
   if (typeof window !== 'undefined') {
     window.location.href = '/auth/signin';
   }
 };
 
-// Request-интерцептор: добавляем access-токен
 http.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const accessToken = getAccessToken();
@@ -93,7 +89,6 @@ http.interceptors.request.use(
   },
 );
 
-// Response-интерцептор: обработка 401 и рефреш токена
 http.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -101,10 +96,8 @@ http.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Если это ошибка 401 и запрос ещё не был повторён
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        // Если рефреш уже идёт, ждём завершения и повторяем запрос
         return new Promise((resolve) => {
           subscribeToRefresh((token: string) => {
             setAuthHeader(originalRequest, token);
@@ -125,32 +118,30 @@ http.interceptors.response.use(
           throw new Error('No refresh token');
         }
 
-        // Вызываем API для обновления токена
         const { access, refresh } = await refreshAccessToken(refreshToken);
         const nextRefreshToken = refresh || refreshToken;
 
-        // Сохраняем новые токены в Redux и localStorage
         applyNewTokens(access, nextRefreshToken);
 
-        // Обновляем заголовок в оригинальном запросе
         setAuthHeader(originalRequest, access);
 
-        // Оповещаем ждущие запросы о новом токене
         isRefreshing = false;
         notifySubscribers(access);
 
-        // Повторяем оригинальный запрос
         return http(originalRequest);
       } catch (refreshError) {
-        // Если рефреш не удался, логиним пользователя
         isRefreshing = false;
         refreshSubscribers = [];
 
-        // Редирект на логин (вызовется при следующем рендере)
+        notify.warning('Сессия истекла. Войдите снова');
         logoutWithRedirect();
 
         return Promise.reject(refreshError);
       }
+    }
+
+    if (error.response?.status && error.response.status >= 500) {
+      notify.error('Ошибка сервера. Попробуйте позже');
     }
 
     return Promise.reject(error);

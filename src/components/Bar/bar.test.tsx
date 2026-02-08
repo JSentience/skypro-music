@@ -6,10 +6,12 @@ import { Provider } from 'react-redux';
 import Bar from './Bar';
 
 jest.mock('next/link', () => {
-  // eslint-disable-next-line react/display-name
-  return ({ children, ...props }: { children: React.ReactNode }) => (
+  const LinkMock = ({ children, ...props }: { children: React.ReactNode }) => (
     <a {...props}>{children}</a>
   );
+
+  LinkMock.displayName = 'LinkMock';
+  return LinkMock;
 });
 
 Object.defineProperty(HTMLMediaElement.prototype, 'play', {
@@ -96,11 +98,9 @@ describe('Bar component', () => {
       </Provider>,
     );
 
-    // Симулируем загрузку метаданных чтобы трек был готов к воспроизведению
     const audio = document.querySelector('audio') as HTMLAudioElement;
     fireEvent.loadedMetadata(audio);
 
-    // Находим кнопку play по классу
     const playButton = document.querySelector('.player__btnPlay');
     expect(playButton).toBeInTheDocument();
 
@@ -127,16 +127,13 @@ describe('Bar component', () => {
 
     const playButton = document.querySelector('.player__btnPlay');
 
-    // Первый клик - play
     fireEvent.click(playButton!);
 
-    // Симулируем что трек начал играть
     Object.defineProperty(audio, 'paused', {
       configurable: true,
       value: false,
     });
 
-    // Второй клик - pause
     fireEvent.click(playButton!);
 
     await waitFor(() => {

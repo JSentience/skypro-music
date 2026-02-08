@@ -1,10 +1,8 @@
 'use client';
 
-import { initializeHttpStore } from '@/sevices/http';
+import { initializeHttpStore } from '@/services/http';
 import { Provider } from 'react-redux';
 import { AppStore, makeStore } from './store';
-
-// Глобальный store для приложения
 let appStore: AppStore | undefined;
 
 function getAppStore(): AppStore {

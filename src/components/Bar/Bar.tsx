@@ -4,7 +4,7 @@ import ProgressBar from '@/components/ProgressBar/ProgressBar';
 import {
   addTrackToFavorites,
   removeTrackFromFavorites,
-} from '@/sevices/tracks/tracksApi';
+} from '@/services/tracks/tracksApi';
 import {
   addFavoriteTrack,
   removeFavoriteTrack,
@@ -18,6 +18,7 @@ import {
 } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { getTimePanel } from '@/utils/helper';
+import { notify } from '@/utils/notify';
 import classNames from 'classnames';
 import Link from 'next/link';
 import {
@@ -61,6 +62,7 @@ export default function Bar() {
     if (audioRef.current && isLoadedTrack) {
       audioRef.current.play().catch((error) => {
         console.error('Ошибка воспроизведения:', error);
+        notify.error('Не удалось воспроизвести трек');
       });
       dispatch(setIsPlay(true));
     }
@@ -125,6 +127,7 @@ export default function Bar() {
       if (isPlay) {
         audioRef.current.play().catch((error) => {
           console.error('Ошибка воспроизведения:', error);
+          notify.error('Не удалось воспроизвести трек');
         });
       }
     }
@@ -138,6 +141,7 @@ export default function Bar() {
 
   const onError = useCallback(() => {
     console.error('Ошибка воспроизведения аудио');
+    notify.error('Не удалось воспроизвести трек');
     dispatch(setIsPlay(false));
   }, [dispatch]);
 
@@ -156,18 +160,24 @@ export default function Bar() {
     async (event: MouseEvent<HTMLDivElement>) => {
       event.stopPropagation();
 
-      if (!isAuthenticated || !currentTrack) return;
+      if (!isAuthenticated || !currentTrack) {
+        notify.info('Войдите, чтобы добавить трек в избранное');
+        return;
+      }
 
       try {
         if (isFavorite) {
           await removeTrackFromFavorites(currentTrack._id);
           dispatch(removeFavoriteTrack(currentTrack._id));
+          notify.info('Трек удалён из избранного');
         } else {
           await addTrackToFavorites(currentTrack._id);
           dispatch(addFavoriteTrack(currentTrack));
+          notify.success('Трек добавлен в избранное');
         }
       } catch (error) {
         console.error('Ошибка при обновлении избранного', error);
+        notify.error('Не удалось обновить избранное');
       }
     },
     [dispatch, isAuthenticated, isFavorite, currentTrack],

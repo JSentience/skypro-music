@@ -1,9 +1,10 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { getFavoriteTracks } from '@/sevices/tracks/tracksApi';
+import { getFavoriteTracks } from '@/services/tracks/tracksApi';
 import { setFavoritesTracks, setLoading } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
+import { notify } from '@/utils/notify';
 import { useEffect, useRef } from 'react';
 
 export const useFavoriteTracks = () => {
@@ -25,6 +26,7 @@ export const useFavoriteTracks = () => {
       })
       .catch((error) => {
         console.error('Ошибка загрузки избранных треков', error);
+        notify.error('Не удалось загрузить избранные треки');
         dispatch(setLoading(false));
         hasFetchedRef.current = false;
       });

@@ -114,7 +114,6 @@ export default function Centerblock({ tracks, title }: CenterblockProps) {
       return byName || byAuthor;
     });
 
-    // Применяем сортировку по году только при явном выборе
     if (selectedFilter.year.length > 0) {
       const sortOrder = selectedFilter.year[0];
       if (sortOrder === 'новые' || sortOrder === 'старые') {
@@ -124,11 +123,24 @@ export default function Centerblock({ tracks, title }: CenterblockProps) {
           return sortOrder === 'новые' ? yearB - yearA : yearA - yearB;
         });
       }
-      // Если выбрано "по умолчанию" - не применяем сортировку
     }
 
     return filtered;
   }, [tracks, selectedFilter, search]);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      selectedFilter.author.length > 0 ||
+      selectedFilter.genre.length > 0 ||
+      selectedFilter.year.length > 0 ||
+      search.trim().length > 0
+    );
+  }, [search, selectedFilter]);
+
+  const onResetFilters = useCallback(() => {
+    dispatch(resetFilters());
+    dispatch(setSearchAction(''));
+  }, [dispatch]);
 
   return (
     <div className={styles.centerblock}>
@@ -143,7 +155,25 @@ export default function Centerblock({ tracks, title }: CenterblockProps) {
       <div className={styles.content__playlist}>
         {isLoadingTracks && <Loading />}
         {!isLoadingTracks && filteredTracks.length === 0 && (
-          <div style={{ color: 'white' }}>Нет треков для отображения</div>
+          <div className={styles.emptyState}>
+            <p className={styles.emptyState__title}>
+              {hasActiveFilters ? 'Ничего не найдено' : 'Список треков пуст'}
+            </p>
+            <p className={styles.emptyState__subtitle}>
+              {hasActiveFilters
+                ? 'Попробуйте изменить фильтры или поиск.'
+                : 'Проверьте подключение и попробуйте обновить страницу.'}
+            </p>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={onResetFilters}
+                className={styles.emptyState__button}
+              >
+                Сбросить фильтры
+              </button>
+            )}
+          </div>
         )}
         {!isLoadingTracks &&
           filteredTracks.map((track: TrackType) => (
