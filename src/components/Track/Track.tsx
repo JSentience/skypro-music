@@ -113,7 +113,12 @@ export default function Track({ track }: TrackTypeProp) {
             </Link>
           </div>
           <div className={styles.track__time}>
-            <svg className={styles.track__timeSvg} onClick={onToggleFavorite}>
+            <svg
+              className={classNames(styles.track__timeSvg, {
+                [styles.track__timeSvg_active]: isFavorite,
+              })}
+              onClick={onToggleFavorite}
+            >
               <use
                 xlinkHref={`/img/icon/sprite.svg#${isFavorite ? 'icon-like' : 'icon-dislike'}`}
               ></use>

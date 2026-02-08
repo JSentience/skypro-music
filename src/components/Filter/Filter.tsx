@@ -1,5 +1,3 @@
-'use client';
-
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import styles from './Filter.module.css';
@@ -13,9 +11,9 @@ type FilterOption = {
 };
 
 type SelectedFilter = {
-  author: string;
-  year: string;
-  genre: string;
+  author: string[];
+  year: string[];
+  genre: string[];
 };
 
 type FilterProps = {
@@ -33,9 +31,9 @@ export default function Filter({
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [localSelectedFilter, setLocalSelectedFilter] =
     useState<SelectedFilter>({
-      author: '',
-      year: '',
-      genre: '',
+      author: [],
+      year: [],
+      genre: [],
     });
 
   const currentSelectedFilter = selectedFilter ?? localSelectedFilter;
@@ -54,11 +52,11 @@ export default function Filter({
       } else {
         setLocalSelectedFilter((prev) => ({
           ...prev,
-          [filterName]: value,
+          [filterName]: prev[filterName].includes(value)
+            ? prev[filterName].filter((item) => item !== value)
+            : [...prev[filterName], value],
         }));
       }
-      // Закрываем список после выбора
-      setActiveFilter(null);
     },
     [onChange],
   );
@@ -84,7 +82,7 @@ export default function Filter({
                     key={option}
                     className={classNames(styles.filter__item, {
                       [styles.filter__item_active]:
-                        currentSelectedFilter[filter.name] === option,
+                        currentSelectedFilter[filter.name].includes(option),
                     })}
                     onClick={() => handleOptionChange(filter.name, option)}
                   >

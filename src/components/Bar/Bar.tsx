@@ -305,7 +305,12 @@ export default function Bar() {
                       styles.btnIcon,
                     )}
                   >
-                    <svg className={styles.trackPlay__likeSvg}>
+                    <svg
+                      className={classNames(
+                        styles.trackPlay__likeSvg,
+                        styles.trackPlay__likeSvg_active,
+                      )}
+                    >
                       <use xlinkHref="/img/icon/sprite.svg#icon-like"></use>
                     </svg>
                   </div>

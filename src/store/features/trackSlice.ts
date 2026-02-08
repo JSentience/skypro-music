@@ -14,6 +14,12 @@ type initialTrackStateType = {
   selections: SelectionType[];
   favoriteTracks: TrackType[];
   currentSelection: number | null;
+  filters: {
+    genre: string[];
+    author: string[];
+    year: string[];
+  };
+  search: string;
 };
 
 const initialState: initialTrackStateType = {
@@ -28,6 +34,12 @@ const initialState: initialTrackStateType = {
   selections: [],
   favoriteTracks: [],
   currentSelection: null,
+  filters: {
+    genre: [],
+    author: [],
+    year: [],
+  },
+  search: '',
 };
 
 const trackSlice = createSlice({
@@ -122,6 +134,46 @@ const trackSlice = createSlice({
       );
       state.isLike = state.favoriteTracks.length > 0;
     },
+    setFilterAuthors(state, action: PayloadAction<string>) {
+      const author = action.payload;
+      if (state.filters.author.includes(author)) {
+        state.filters.author = state.filters.author.filter(
+          (value) => value !== author,
+        );
+        return;
+      }
+      state.filters.author = [...state.filters.author, author];
+    },
+    setFilterGenre(state, action: PayloadAction<string>) {
+      const genre = action.payload;
+      if (state.filters.genre.includes(genre)) {
+        state.filters.genre = state.filters.genre.filter(
+          (value) => value !== genre,
+        );
+        return;
+      }
+      state.filters.genre = [...state.filters.genre, genre];
+    },
+    setFilterYears(state, action: PayloadAction<string>) {
+      const year = action.payload;
+      // Если выбрана та же опция, снимаем выбор
+      if (state.filters.year.includes(year)) {
+        state.filters.year = [];
+        return;
+      }
+      // Заменяем на новое значение (только одно значение)
+      state.filters.year = [year];
+    },
+    resetFilters(state) {
+      state.filters = {
+        genre: [],
+        author: [],
+        year: [],
+      };
+    },
+    setSearch(state, action: PayloadAction<string>) {
+      state.search = action.payload;
+    },
   },
 });
 
@@ -139,6 +191,11 @@ export const {
   addFavoriteTrack,
   removeFavoriteTrack,
   setFavoritesTracks,
+  setFilterAuthors,
+  setFilterGenre,
+  setFilterYears,
+  resetFilters,
+  setSearch,
 } = trackSlice.actions;
 
 export const trackSliceReducer = trackSlice.reducer;
@@ -180,4 +237,14 @@ export const selectCanPrev = createSelector(
     if (track.isShuffle) return true;
     return curIndex > 0;
   },
+);
+
+export const selectTrackFilters = createSelector(
+  [selectTrackState],
+  (track) => track.filters,
+);
+
+export const selectTrackSearch = createSelector(
+  [selectTrackState],
+  (track) => track.search,
 );
